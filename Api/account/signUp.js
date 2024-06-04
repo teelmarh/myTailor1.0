@@ -1,5 +1,6 @@
 const app = require("express").Router();
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 // Import the dotenv package
 require("dotenv").config();
@@ -81,6 +82,12 @@ app.post("/login", async (req, res) => {
                 .status(401)
                 .json({ message: "Invalid email or password" });
         }
+        // Generate JWT token upon successful login
+        const payload = { userId: user._id }; // Include user ID in payload
+        const token = jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: "1h",
+        }); // Set expiry to 1 hour
+
         return res.json({ message: "Login successful!" });
     } catch (err) {
         console.error(err);
