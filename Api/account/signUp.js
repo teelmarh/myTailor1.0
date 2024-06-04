@@ -82,11 +82,14 @@ app.post("/login", async (req, res) => {
                 .status(401)
                 .json({ message: "Invalid email or password" });
         }
+
         // Generate JWT token upon successful login
-        const payload = { userId: user._id }; // Include user ID in payload
+        const payload = { userId: user._id, email: user.email }; 
         const token = jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: "1h",
-        }); // Set expiry to 1 hour
+            expiresIn: "1h", // Set expiry to 1 hour
+        });
+
+        console.log("Generated JWT Token:", token); // TO BE CHANGED!!!
 
         return res.json({ message: "Login successful!" });
     } catch (err) {
@@ -97,4 +100,3 @@ app.post("/login", async (req, res) => {
 
 module.exports = app;
 
-//TODO: CONSIDER IMPLEMENTING OTP VERIFICATION

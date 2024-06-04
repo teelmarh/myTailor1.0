@@ -30,7 +30,7 @@ const verifyToken = (req, res, next) => {
 //routes
 const signUpRouter = require("./Api/account/signUp.js");
 const OrderRouter = require("./Api/order/createOrder.js");
-const profileRouter = require("./Api/account/profile.js"); 
+const profileRouter = require("./Api/account/profile.js");
 
 //route requests
 app.use("/account", signUpRouter);

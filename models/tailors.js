@@ -7,6 +7,10 @@ const tailorSchema = new schema({
     phoneno: String,
     email:String,
     password:String,
+    image: {
+        data: Buffer, 
+        contentType: String 
+      }
 })
 
 const tailor = mongoose.model('tailor', tailorSchema);
