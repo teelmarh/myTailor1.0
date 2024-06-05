@@ -1,5 +1,3 @@
-//CHECK TODO FILE
-
 const app = require("express").Router();
 require("dotenv").config();
 const Customer = require("../../models/order").Customer;
@@ -76,7 +74,7 @@ app.post("/new", async (req, res) => {
 
         const userId = req.user.userId;
         const newOrder = new Order({
-            tailorId: userId,
+            createdBy: userId,
             customerId: newCustomer._id,
             clothType: clothtype,
             material: material,
@@ -117,7 +115,75 @@ app.get("/allOrder", async (req, res) => {
     }
 });
 
+//fetch a particular record on click
+app.get("/details/:orderId", async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const order = await Order.findById(orderId)
+            .populate("customerId")
+            .populate("measurementId");
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+        res.json(order);
+    } catch (error) {
+        console.error("Error fetching order details:", error);
+        res.status(500).json({ message: "Error fetching order details" });
+    }
+});
 
+//search for record based on customer name
+app.get("/search", async (req, res) => {
+    try {
+        const { name } = req.query; // Get customer name from query parameter
+        const customers = await Customer.find({
+            name: { $regex: name, $options: "i" }, // Case-insensitive search
+        });
 
+        if (!customers.length) {
+            return res
+                .status(404)
+                .json({ message: "No orders found for this customer" });
+        }
+        const customerIds = customers.map((customer) => customer._id);
+        const orders = await Order.find({
+            customerId: { $in: customerIds },
+        })
+            .populate("customerId")
+            .populate("measurementId");
+
+        res.json(orders);
+    } catch (error) {
+        console.error("Error searching orders by customer name:", error);
+        res.status(500).json({ message: "Error searching orders" });
+    }
+});
+
+//filter order by date....
+
+// Delete an order
+app.delete("/delete/:orderId", async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+
+        const orderToDelete = await Order.findById(orderId)
+            .populate("customerId")
+            .populate("measurementId");
+
+        if (!orderToDelete) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        await Measurement.deleteOne({ _id: orderToDelete.measurementId });
+        await Customer.deleteOne({ _id: orderToDelete.customerId });
+
+        await Order.findByIdAndDelete(orderId);
+
+        res.json({ message: "Order deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting order:", error);
+        res.status(500).json({ message: "Error deleting order" });
+    }
+});
 
 module.exports = app;

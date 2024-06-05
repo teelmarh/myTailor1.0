@@ -8,7 +8,7 @@ const customerSchema = new mongoose.Schema({
 });
 
 const orderSchema = new mongoose.Schema({
-    tailorId: {
+    createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Tailor", // Reference the Tailor model
         required: true,
