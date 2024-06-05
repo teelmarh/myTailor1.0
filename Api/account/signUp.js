@@ -86,7 +86,7 @@ app.post("/login", async (req, res) => {
         // Generate JWT token upon successful login
         const payload = { userId: user._id, email: user.email }; 
         const token = jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: "1h", // Set expiry to 1 hour
+            expiresIn: "24h", // Set expiry to 1 hour
         });
 
         console.log("Generated JWT Token:", token); // TO BE CHANGED!!!

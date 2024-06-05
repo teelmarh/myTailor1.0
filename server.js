@@ -2,13 +2,13 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const db = require("./config/db");
-const jwt = require("jsonwebtoken");
-const verifyToken = require("./verifyToken");
+const verifyToken = require("./config/verifyToken.js");
 const port = 5000;
 require("dotenv");
 
 app.use(cors());
 app.use(express.json());
+
 
 //routes
 const signUpRouter = require("./Api/account/signUp.js");

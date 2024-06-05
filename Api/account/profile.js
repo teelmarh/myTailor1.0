@@ -31,6 +31,9 @@ app.get("/profile", async (req, res) => {
             lname: tailor.lname,
             email: tailor.email,
             phoneno: tailor.phoneno,
+            profilePicture: tailor.image?.data
+                ? Buffer.from(tailor.image.data).toString("base64")
+                : null,
         };
 
         return res.json(profile);
