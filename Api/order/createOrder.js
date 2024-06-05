@@ -2,10 +2,9 @@
 
 const app = require("express").Router();
 require("dotenv").config();
-const orderModels = require("../../models/order");
-const Customer = orderModels.Customer;
-const Order = orderModels.Order;
-const Measurement = orderModels.Measurement;
+const Customer = require("../../models/order").Customer;
+const Order = require("../../models/order").Order;
+const Measurement = require("../../models/order").Measurement;
 
 // Create a new order
 app.post("/new", async (req, res) => {
@@ -75,7 +74,9 @@ app.post("/new", async (req, res) => {
         });
         await newMeasurement.save();
 
+        const userId = req.user.userId;
         const newOrder = new Order({
+            tailorId: userId,
             customerId: newCustomer._id,
             clothType: clothtype,
             material: material,

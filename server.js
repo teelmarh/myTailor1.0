@@ -18,7 +18,7 @@ const profileRouter = require("./Api/account/profile.js");
 //route requests
 app.use("/account", signUpRouter);
 app.use("/order", verifyToken, OrderRouter);
-app.use("/user", verifyToken, profileRouter);
+app.use("/profile", verifyToken, profileRouter);
 
 app.listen(port, () => {
     console.log(`Server is running`);

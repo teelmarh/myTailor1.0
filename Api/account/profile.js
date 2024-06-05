@@ -1,13 +1,18 @@
 const app = require("express").Router();
 const Tailor = require("../../models/tailors");
 const multer = require("multer");
+const Order = require("../../models/order").Order;
 
 const upload = multer({
-    dest: "./uploads/",
-    limits: { fileSize: 1000000 }, // Limit file size to 1 MB
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         const allowedExtensions = ["jpg", "jpeg", "png"];
         const extension = file.originalname.split(".").pop();
+
+        if (file.size > 5 * 1024 * 1024) {
+            return cb(new Error("File size exceeds the limit of 5 MB"));
+        }
+
         if (!allowedExtensions.includes(extension)) {
             cb(new Error("Unsupported file type"));
         } else {
@@ -15,9 +20,8 @@ const upload = multer({
         }
     },
 });
-
 // Get tailor profile details
-app.get("/profile", async (req, res) => {
+app.get("/", async (req, res) => {
     try {
         const userId = req.user.userId;
         const tailor = await Tailor.findById(userId);
@@ -25,6 +29,13 @@ app.get("/profile", async (req, res) => {
         if (!tailor) {
             return res.status(404).json({ message: "Tailor not found" });
         }
+
+        const orders = await Order.find({ tailorId: userId });
+
+        const totalOrders = orders.length;
+        const completedOrders = orders.filter(
+            (order) => order.completed === true
+        ).length;
 
         const profile = {
             fname: tailor.fname,
@@ -34,6 +45,8 @@ app.get("/profile", async (req, res) => {
             profilePicture: tailor.image?.data
                 ? Buffer.from(tailor.image.data).toString("base64")
                 : null,
+            totalOrders, // Total orders received by the tailor
+            completedOrders,
         };
 
         return res.json(profile);
@@ -56,7 +69,7 @@ app.post(
                     .status(400)
                     .json({ message: "Please select an image to upload" });
             }
-            // Update tailor document with image data
+
             const updatedTailor = await Tailor.findByIdAndUpdate(
                 userId,
                 {
@@ -70,6 +83,7 @@ app.post(
             if (!updatedTailor) {
                 return res.status(404).json({ message: "Tailor not found" });
             }
+
             res.status(200).json({
                 message: "Profile picture uploaded successfully",
             });
